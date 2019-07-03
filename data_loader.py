@@ -58,13 +58,13 @@ class ImgDataset(Dataset):
         id = int(data_line[0])
         label = int(data_line[1])
         # img = np.load(os.path.join(self.dir_name, data_line[2]))               # if RBG imgs
-        img = np.load(os.path.join(self.dir_name, data_line[2]))[:, np.newaxis]  # if the GREY img has only ONE channel
+        img = np.load(os.path.join(self.dir_name, data_line[2]))[:, :, np.newaxis]  # if the GREY img has only ONE channel
 
         if self.transform:
             img = self.transform(img)
 
         data_dict = {
-            'id': id, 'label': label, 'img': img
+            'id': id, 'lbl': label, 'img': img
         }
 
         return data_dict
