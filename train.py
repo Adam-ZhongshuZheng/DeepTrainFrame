@@ -76,9 +76,7 @@ def data_prepare():
 
 # Model
 def model_prepare():
-    """
-    Args:
-        mode: can be 'A/D/P' or 'ALL'
+    """get the model, operator and the loss function.
     """
     print('==> Building model..')
     global best_acc
