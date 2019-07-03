@@ -13,6 +13,7 @@ import torchvision.transforms as transforms
 import os
 import argparse
 
+from torch.utils.data import SubsetRandomSampler
 from torchvision import datasets
 
 from utils import progress_bar
@@ -51,25 +52,38 @@ def data_prepare():
         transforms.Resize((256, 256)),
         # transforms.RandomCrop(32, padding=4),
         # transforms.RandomHorizontalFlip(),
+        # transforms.RandomVerticalFlip(),
         transforms.ToTensor(),
+        # transforms.Normalize([0.7726, 0.6524, 0.8035], [0.0795, 0.1099, 0.0811]),
     ])
 
     transform_test = transforms.Compose([
         transforms.ToPILImage(),
         transforms.Resize((256, 256)),
         transforms.ToTensor(),
+        # transforms.Normalize([0.7726, 0.6524, 0.8035], [0.0795, 0.1099, 0.0811]),
     ])
 
     # readpath = os.path.join('data_flods', 'flod' + str(flod))
 
-    trainset = MNISTDataset("data/train-images.idx3-ubyte", "data/train-labels.idx1-ubyte", transform=transform_train)
-    trainloader = torch.utils.data.DataLoader(trainset, batch_size=args.batch_size, shuffle=True)
+    dataset = MNISTDataset("data/train-images.idx3-ubyte", "data/train-labels.idx1-ubyte", transform=transform_train)
+    dataset_test = MNISTDataset("data/train-images.idx3-ubyte", "data/train-labels.idx1-ubyte", transform=transform_test)
 
-    valiset = MNISTDataset("data/t10k-images.idx3-ubyte", "data/t10k-labels.idx1-ubyte", transform=transform_test)
-    valiloader = torch.utils.data.DataLoader(valiset, batch_size=args.batch_size, shuffle=False)
+    # To get shuffled dataset
+    valid_rate = [0.6, 0.8, 1.0]    # the valid and test part
 
-    testset = MNISTDataset("data/t10k-images.idx3-ubyte", "data/t10k-labels.idx1-ubyte", transform=transform_test)
-    testloader = torch.utils.data.DataLoader(testset, batch_size=args.batch_size, shuffle=False)
+    indices = list(range(len(dataset)))
+    split1 = int(np.floor(valid_rate[0] * len(dataset)))
+    split2 = int(np.floor(valid_rate[1] * len(dataset)))
+    np.random.shuffle(indices)
+    train_idx, valid_idx, test_idx = indices[:split1], indices[split1: split2], indices[split2:]
+    train_sampler = SubsetRandomSampler(train_idx)
+    vali_sampler = SubsetRandomSampler(valid_idx)
+    test_sampler = SubsetRandomSampler(test_idx)
+
+    trainloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, sampler=train_sampler, shuffle=True)
+    valiloader = torch.utils.data.DataLoader(dataset_test, batch_size=args.batch_size, sampler=vali_sampler, shuffle=False)
+    testloader = torch.utils.data.DataLoader(dataset_test, batch_size=args.batch_size, sampler=test_sampler, shuffle=False)
 
     return trainloader, valiloader, testloader
 
