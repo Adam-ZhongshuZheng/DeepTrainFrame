@@ -80,7 +80,7 @@ def data_prepare():
     vali_sampler = SubsetRandomSampler(valid_idx)
     test_sampler = SubsetRandomSampler(test_idx)
 
-    trainloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, sampler=train_sampler, shuffle=True)
+    trainloader = torch.utils.data.DataLoader(dataset, batch_size=args.batch_size, sampler=train_sampler, shuffle=False)
     valiloader = torch.utils.data.DataLoader(dataset_test, batch_size=args.batch_size, sampler=vali_sampler, shuffle=False)
     testloader = torch.utils.data.DataLoader(dataset_test, batch_size=args.batch_size, sampler=test_sampler, shuffle=False)
 
